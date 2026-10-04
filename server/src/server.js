@@ -53,6 +53,20 @@ app.use('/api/conflicts', conflictRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/activity', adminRoutes);
 
+// Serve static frontend in production
+const path = require('path');
+const fs = require('fs');
+const clientDist = path.join(__dirname, '../../client/dist');
+if (fs.existsSync(clientDist)) {
+  app.use(express.static(clientDist));
+  app.use((req, res, next) => {
+    if (req.method === 'GET' && !req.path.startsWith('/api')) {
+      return res.sendFile(path.join(clientDist, 'index.html'));
+    }
+    next();
+  });
+}
+
 // Global Error Handler
 app.use((err, req, res, next) => {
   console.error('Unhandled Application Error:', err);
