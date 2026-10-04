@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SyncGuard — ALGOTHON'26 Presentation Deck</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #090d16;
+      color: #f1f5f9;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    .slide {
+      display: none;
+      min-height: calc(100vh - 120px);
+    }
+    .slide.active {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen justify-between p-6 sm:p-10 select-none">
+  <!-- Top Progress Bar -->
+  <header class="flex items-center justify-between pb-4 border-b border-slate-800">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-sky-600 flex items-center justify-center font-bold text-white shadow-md">
+        SG
+      </div>
+      <div>
+        <span class="font-bold text-white tracking-tight">SyncGuard</span>
+        <span class="text-xs text-slate-400 ml-2">ALGOTHON'26 • ALG-WEB-02</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
+      <span>Slide</span>
+      <span id="slide-num" class="text-sky-400 font-bold">1</span>
+      <span>/</span>
+      <span id="total-slides">8</span>
+    </div>
+  </header>
+
+  <!-- Slide Deck Container -->
+  <main class="flex-1 my-auto max-w-5xl mx-auto w-full py-8">
+    <!-- Slide 1: Title Slide -->
+    <div class="slide active space-y-6" data-title="Title">
+      <div class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/20">
+        ALGOTHON’26 Hackathon Final Presentation
+      </div>
+      <h1 class="text-4xl sm:text-6xl font-black text-white tracking-tight leading-tight">
+        SyncGuard
+      </h1>
+      <p class="text-xl sm:text-2xl text-slate-300 font-medium">
+        Conflict-Aware Offline Operations for Mission-Critical Field Teams
+      </p>
+      <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 max-w-2xl text-sm text-slate-400 space-y-1">
+        <p><strong class="text-white">Problem Statement:</strong> ALG-WEB-02 — Offline-First Application</p>
+        <p><strong class="text-white">Core Engineering Target:</strong> Concurrency Control, Deterministic Conflict Detection & Auto-Merging</p>
+      </div>
+    </div>
+
+    <!-- Slide 2: The Industrial Reality -->
+    <div class="slide space-y-6" data-title="The Problem">
+      <div class="text-xs font-bold uppercase tracking-wider text-rose-400">The Problem in Field Operations</div>
+      <h2 class="text-3xl sm:text-4xl font-black text-white tracking-tight">
+        Why Traditional Apps Fail in the Field
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+          <div class="text-rose-400 font-bold text-lg">1. Network Blackouts</div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Turbine basements, offshore rigs, and utility sub-levels operate with zero cellular signal. Traditional web apps freeze or throw fatal network errors.
+          </p>
+        </div>
+        <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+          <div class="text-rose-400 font-bold text-lg">2. "Last-Write-Wins" Destruction</div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Standard syncing relies on device clocks. Whoever syncs last blindly obliterates prior work, causing silent loss of safety audits and sensor calibrations.
+          </p>
+        </div>
+        <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+          <div class="text-rose-400 font-bold text-lg">3. Generic To-Do App Trap</div>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Field service is not a personal to-do list. Multiple technicians touch the same asset concurrently. Concurrency must be governed mathematically.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3: The Architecture -->
+    <div class="slide space-y-6" data-title="Architecture">
+      <div class="text-xs font-bold uppercase tracking-wider text-sky-400">Engineering Foundation</div>
+      <h2 class="text-3xl sm:text-4xl font-black text-white tracking-tight">
+        Client-Server Dual Concurrency Architecture
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs text-slate-300">
+        <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+          <h3 class="text-sm font-bold text-sky-400 uppercase tracking-wider">Client Layer (Dexie IndexedDB)</h3>
+          <ul class="space-y-2">
+            <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span> <strong>7 Dedicated Stores:</strong> tasks, checklists, outbox, conflicts, sync_metadata, users, activity_logs.</li>
+            <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span> <strong>Local-First Write:</strong> Mutations persist to IndexedDB in &lt;5ms. Zero UI latency.</li>
+            <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span> <strong>Persistent Outbox:</strong> Serialized mutations withstand reboots, page refreshes, and app closures.</li>
+          </ul>
+        </div>
+        <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3">
+          <h3 class="text-sm font-bold text-purple-400 uppercase tracking-wider">Backend Layer (Node.js + PostgreSQL)</h3>
+          <ul class="space-y-2">
+            <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span> <strong>Monotonic Versioning:</strong> Every synchronizable record tracks an immutable integer version.</li>
+            <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span> <strong>Strict Idempotency:</strong> Unique operationId caching guarantees duplicate packets cannot double-mutate.</li>
+            <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span> <strong>Dual Storage Engine:</strong> Native PostgreSQL with zero-config SQLite embedded fallback.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 4: Concurrency & Conflict Engine -->
+    <div class="slide space-y-6" data-title="Conflict Engine">
+      <div class="text-xs font-bold uppercase tracking-wider text-amber-400">Core Innovation</div>
+      <h2 class="text-3xl sm:text-4xl font-black text-white tracking-tight">
+        Algorithmic Conflict Detection & Auto-Merging
+      </h2>
+      <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-4 text-xs sm:text-sm">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-xs">
+          <div class="p-3 rounded-xl bg-slate-850 border border-slate-800">
+            <div class="text-emerald-400 font-bold mb-1">1. Exact Version Match</div>
+            <p class="text-slate-400">baseVersion === serverVersion: Apply mutation cleanly, version + 1.</p>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-850 border border-slate-800">
+            <div class="text-sky-400 font-bold mb-1">2. Disjoint Fields</div>
+            <p class="text-slate-400">Different fields modified: Auto-Merge automatically without human friction!</p>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-850 border border-slate-800">
+            <div class="text-rose-400 font-bold mb-1">3. Colliding Field Values</div>
+            <p class="text-slate-400">Same field changed to different values: Safe conflict creation in Conflict Center.</p>
+          </div>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-950 border border-slate-850 text-slate-400 text-xs">
+          <strong class="text-white">Rule:</strong> Never implement blind Last-Write-Wins. Delete-vs-Edit and concurrent value collisions are preserved for operator review.
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 5: The Official Demo Walkthrough -->
+    <div class="slide space-y-6" data-title="Live Demo">
+      <div class="text-xs font-bold uppercase tracking-wider text-emerald-400">The Live Demonstration</div>
+      <h2 class="text-3xl sm:text-4xl font-black text-white tracking-tight">
+        The Official Hackathon Scenario in Action
+      </h2>
+      <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 space-y-3 text-xs sm:text-sm">
+        <div class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-850 border border-slate-800">
+          <span class="font-mono text-sky-400 font-bold px-2 py-0.5 rounded bg-sky-950">Step 1</span>
+          <span>Task 7701 (CNC Milling Unit #4) starts at baseline <strong>Version 7</strong>.</span>
+        </div>
+        <div class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-850 border border-slate-800">
+          <span class="font-mono text-sky-400 font-bold px-2 py-0.5 rounded bg-sky-950">Step 2</span>
+          <span><strong>Device A (Toughbook)</strong> goes offline: status = <code class="text-emerald-400">COMPLETED</code>, quantity = <code class="text-emerald-400">50</code>.</span>
+        </div>
+        <div class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-850 border border-slate-800">
+          <span class="font-mono text-sky-400 font-bold px-2 py-0.5 rounded bg-sky-950">Step 3</span>
+          <span><strong>Device B (Tablet)</strong> goes offline: status = <code class="text-amber-400">IN_PROGRESS</code>, quantity = <code class="text-amber-400">45</code>.</span>
+        </div>
+        <div class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-850 border border-slate-800">
+          <span class="font-mono text-sky-400 font-bold px-2 py-0.5 rounded bg-sky-950">Step 4</span>
+          <span>Device A reconnects and syncs $\rightarrow$ Server advances cleanly to <strong>Version 8</strong>.</span>
+        </div>
+        <div class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-850 border border-rose-900/60 bg-rose-950/20">
+          <span class="font-mono text-rose-400 font-bold px-2 py-0.5 rounded bg-rose-950">Step 5</span>
+          <span>Device B reconnects with base v7 $\rightarrow$ <strong>Server flags conflict!</strong> Disables blind overwrite.</span>
+        </div>
+        <div class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-850 border border-emerald-900/60 bg-emerald-950/20">
+          <span class="font-mono text-emerald-400 font-bold px-2 py-0.5 rounded bg-emerald-950">Step 6</span>
+          <span>Operator opens <strong>Conflict Center</strong> $\rightarrow$ Resolves via <strong>Side-by-Side Merge</strong> $\rightarrow$ advances to <strong>Version 9</strong>.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 6: Mobile & UX Polish -->
+    <div class="slide space-y-6" data-title="UX & PWA">
+      <div class="text-xs font-bold uppercase tracking-wider text-cyan-400">Field-Ready UX</div>
+      <h2 class="text-3xl sm:text-4xl font-black text-white tracking-tight">
+        Engineered for Heavy Gloves and Small Screens
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-slate-300">
+        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+          <h3 class="font-bold text-white text-sm">Mobile-First (320px+)</h3>
+          <p class="text-slate-400 leading-relaxed">
+            Bottom touch bar navigation, cards instead of sprawling tables, and 44px+ touch targets designed for field gloves.
+          </p>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+          <h3 class="font-bold text-white text-sm">PWA & Service Worker</h3>
+          <p class="text-slate-400 leading-relaxed">
+            Installable on phones or tablets with Cache API app shell persistence and zero-connection boot capability.
+          </p>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+          <h3 class="font-bold text-white text-sm">Multi-Sensory Status Badges</h3>
+          <p class="text-slate-400 leading-relaxed">
+            Color + Icon + Text indicators (Online, Offline, Syncing, Conflict) ensuring total clarity under bright sunlight.
+          </p>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+          <h3 class="font-bold text-white text-sm">Built-in Device Simulator</h3>
+          <p class="text-slate-400 leading-relaxed">
+            One-click toggle between Toughbook A, Tablet B, and HQ Console, allowing instant judging without physical hardware switching.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 7: Verification & Testing -->
+    <div class="slide space-y-6" data-title="Verification">
+      <div class="text-xs font-bold uppercase tracking-wider text-emerald-400">Testing Evidence</div>
+      <h2 class="text-3xl sm:text-4xl font-black text-white tracking-tight">
+        100% Automated Test Pass Rate
+      </h2>
+      <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800 font-mono text-xs space-y-2">
+        <div class="text-emerald-400">✔ detects equal values across primitives and objects (0.53ms)</div>
+        <div class="text-emerald-400">✔ allows clean update when baseVersion equals server version (0.21ms)</div>
+        <div class="text-emerald-400">✔ detects conflict when same field changed to different values (Demo Scenario) (0.61ms)</div>
+        <div class="text-emerald-400">✔ automatically merges when different non-overlapping fields are modified (0.14ms)</div>
+        <div class="text-emerald-400">✔ detects delete vs edit conflict (0.10ms)</div>
+        <div class="text-emerald-400">✔ guarantees idempotency when an operation is retransmitted (6.08ms)</div>
+        <div class="text-emerald-400">✔ executes official multi-device demo scenario cleanly (5.14ms)</div>
+        <div class="pt-2 border-t border-slate-800 text-slate-300">
+          <strong>Result:</strong> 7 tests passed, 0 failures, 252ms total execution time.
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 8: Closing & Value -->
+    <div class="slide space-y-6" data-title="Conclusion">
+      <div class="text-xs font-bold uppercase tracking-wider text-sky-400">Summary</div>
+      <h2 class="text-3xl sm:text-5xl font-black text-white tracking-tight">
+        SyncGuard: The Offline Standard
+      </h2>
+      <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 max-w-2xl text-slate-300 text-sm space-y-3">
+        <p class="leading-relaxed">
+          SyncGuard transforms field operations from a high-risk, data-losing liability into an enterprise-grade, deterministic offline system.
+        </p>
+        <div class="grid grid-cols-2 gap-3 text-xs pt-2">
+          <div class="p-3 rounded-xl bg-slate-850 border border-slate-800">
+            <span class="text-slate-400 block">Zero Silent Loss</span>
+            <strong class="text-emerald-400 text-sm">OCC Versioning</strong>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-850 border border-slate-800">
+            <span class="text-slate-400 block">Frictionless Experience</span>
+            <strong class="text-sky-400 text-sm">Auto-Merging</strong>
+          </div>
+        </div>
+      </div>
+      <div class="pt-2">
+        <span class="text-slate-400 text-sm">Ready for Live Interactive Demo & Q&A.</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Navigation Bar -->
+  <footer class="flex items-center justify-between pt-4 border-t border-slate-800">
+    <button id="prev-btn" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-semibold text-slate-300 hover:text-white transition-colors">
+      ← Previous Slide
+    </button>
+    <div class="flex items-center gap-1.5" id="dots-container"></div>
+    <button id="next-btn" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition-all shadow-md">
+      Next Slide →
+    </button>
+  </footer>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const slideNum = document.getElementById('slide-num');
+    const totalSlides = document.getElementById('total-slides');
+    const dotsContainer = document.getElementById('dots-container');
+    let currentIndex = 0;
+
+    totalSlides.textContent = slides.length;
+
+    // Create dots
+    slides.forEach((_, i) => {
+      const dot = document.createElement('div');
+      dot.className = `w-2 h-2 rounded-full transition-all cursor-pointer ${i === 0 ? 'bg-sky-400 w-5' : 'bg-slate-700'}`;
+      dot.onclick = () => goToSlide(i);
+      dotsContainer.appendChild(dot);
+    });
+
+    function updateSlide() {
+      slides.forEach((s, i) => {
+        s.classList.toggle('active', i === currentIndex);
+      });
+      slideNum.textContent = currentIndex + 1;
+      const dots = dotsContainer.children;
+      for (let i = 0; i < dots.length; i++) {
+        dots[i].className = `w-2 h-2 rounded-full transition-all cursor-pointer ${i === currentIndex ? 'bg-sky-400 w-5' : 'bg-slate-700'}`;
+      }
+      prevBtn.disabled = currentIndex === 0;
+      prevBtn.style.opacity = currentIndex === 0 ? '0.4' : '1';
+      nextBtn.textContent = currentIndex === slides.length - 1 ? 'Finish Presentation' : 'Next Slide →';
+    }
+
+    function goToSlide(index) {
+      if (index >= 0 && index < slides.length) {
+        currentIndex = index;
+        updateSlide();
+      }
+    }
+
+    prevBtn.addEventListener('click', () => goToSlide(currentIndex - 1));
+    nextBtn.addEventListener('click', () => {
+      if (currentIndex === slides.length - 1) {
+        goToSlide(0);
+      } else {
+        goToSlide(currentIndex + 1);
+      }
+    });
+
+    // Keyboard support
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        goToSlide(currentIndex + 1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        goToSlide(currentIndex - 1);
+      }
+    });
+
+    updateSlide();
+  </script>
+</body>
+</html>
